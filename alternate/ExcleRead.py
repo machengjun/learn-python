@@ -29,7 +29,7 @@ def set_style(name, height, bold=False):
     return style
 
 
-workbook = xlrd.open_workbook(r'urldata.xlsx')
+workbook = xlrd.open_workbook(r'excleData.xlsx')
 # 获取所有sheet
 sheets_name = workbook.sheet_names()  # [u'sheet1', u'sheet2']
 sheet1_name = sheets_name[0]
@@ -44,55 +44,8 @@ for x in range(0, sheet1_obj.nrows):
     target_url = sheet1_obj.cell_value(x, 1)
     item.append(deal_url)
     item.append(target_url)
-    # 开始爬虫程序
-    print('开始爬取' + deal_url + '内容：')
-    try:
-        # 伪装header
-        headers = ('User-Agent','Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11')
-        opener = request.build_opener()
-        opener.addheaders = [headers]
-        origin_bytes = opener.open(deal_url, timeout=100).read()
-    except socket.timeout as e:
-        print('爬取失败，网站异常：')
-        item.append('')
-        item.append('网站连接超时')
-        excle_data.append(item)
-        continue
-
-    html_string = origin_bytes.decode('utf-8')
-    # origin_bytes = request.urlopen(url=deal_url, timeout=50,headers=ua_headers).read()
-    # html_string = origin_bytes.decode('utf-8')
-
-    print('爬取成功！')
-    print('检索rel=alternate：')
-    print('检索结果如下：')
-    soup = BeautifulSoup(html_string, 'html.parser')
-    search_result = soup.find_all(rel='alternate')
-    paragraphs = []
-    for x in search_result:
-        paragraphs.append(str(x))
-
-    # search_result_string = ' '.join(search_result)
-    item.append(paragraphs)
-    test_result = 'PASS'
-    # 检索结果不唯一，不通过
-    if len(search_result) != 1:
-        print('测试结果：FAIL')
-        test_result = 'FAIL'
-        item.append('FAIL')
-    else:
-        for link_data in search_result:
-            print('期望的href:' + target_url)
-            href = link_data.get('href')
-            print('检测到的href:' + href)
-            if href != target_url:
-                print('测试结果：FAIL')
-                test_result = 'FAIL'
-                item.append('FAIL')
-    if test_result == 'PASS':
-        print('测试结果：PASS')
-        item.append('PASS')
     excle_data.append(item)
+
 print('--------------------------------------------------------------------------------------------------------')
 print('--------------------------------------------------------------------------------------------------------')
 print('--------------------------------------------------------------------------------------------------------')
@@ -111,4 +64,4 @@ for x in range(0, len(excle_data)):
         print(type(excle_data[x][y]))
         my_sheet1.write(x+1, y, excle_data[x][y], set_style('Times New Roman', 220, True))
 
-f.save('result_report.xls')  # 保存文件
+f.save('excleTest.xls')  # 保存文件
